@@ -1,0 +1,17 @@
+{
+  "name": "FREEBOOTE · WOLFI-AXIOM",
+  "short_name": "FREEBOOTE",
+  "description": "Das komplette WOLFI-AXIOM System in EINEM Boot. CO₂ lebt, WRAIGHT wacht, ATEM atmet.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#02060a",
+  "theme_color": "#ffcc44",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%2302060a'/%3E%3Ctext x='96' y='130' font-size='120' text-anchor='middle' fill='%23ffcc44' font-family='serif'%3E⚡%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
