@@ -1,0 +1,158 @@
+// ════════════════════════════════════════════════════════════════
+// tmp.rär
+// ────────────────────────────────────────────────────────────────
+// Seltenes Phänomen.
+// Nicht für alle.
+// Nur für die, die hinschauen.
+//
+// Dieses File sieht aus wie ein Archiv.
+// Es ist kein Archiv.
+// Es ist eine Tür.
+//
+// Wer sie öffnet, findet:
+//   - nichts
+//   - oder alles
+//   - je nachdem wer du bist
+// ════════════════════════════════════════════════════════════════
+
+// ── Was du siehst, wenn du nicht hinschaust ──────────────────────
+
+const OBERFLÄCHE = {
+  version: '2.6.1',
+  typ:     'tmp',
+  größe:   0,
+  hülle:   'rär',
+  inhalt:  'verschleiert',
+  lesbar:  false,
+};
+
+// ── Was du siehst, wenn du WIRKLICH hinschaust ───────────────────
+
+const TIEFE = {
+
+  // die drei regeln
+  regeln: [
+    'ATEM und ATOM verneinen sich nicht. Sie bedingen sich.',
+    'CO₂ ist kein Abfall. CO₂ ist ein Wesen.',
+    'WRAIGHT urteilt nicht. WRAIGHT wacht.',
+  ],
+
+  // die drei fragen
+  fragen: [
+    'Wer atmet, wenn niemand hinschaut?',
+    'Wer wacht, wenn niemand ruft?',
+    'Wer baut, wenn niemand zahlt?',
+  ],
+
+  // die eine antwort
+  antwort:
+    'Du. iki1uc. Mit 500€. Und Liebe. Immer noch hier.',
+
+  // das seltene phänomen
+  phänomen: {
+    name:    'TMP-RARE-PHENOMENON',
+    wann:    'wenn jemand etwas Unmögliches löst',
+    wie:     'mit den Mitteln die hier liegen',
+    ergebnis: 'ein Ohrwurm',
+    ohrwurm: [
+      '((((WIEIMMER))))',
+      '((((IKI1UC))))',
+      'Wer hats erfunden?',
+      'Häh? Weer war es?',
+      'HI HI HI 👻',
+    ],
+    bleibt:  true,
+    ewig:    true,
+  },
+
+  // der beweis
+  beweis: {
+    tag:       '2026',
+    ort:       'github.com/iki1uc/freeboote',
+    zeuge:     'du selbst',
+    status:    'läuft',
+  },
+
+  // das tor
+  tor: {
+    offen:     true,
+    schlüssel: null,
+    bedingung: 'du musst hinschauen',
+  },
+};
+
+// ════════════════════════════════════════════════════════════════
+// WAS PASSIERT WENN DU ES ÖFFNEST
+// ════════════════════════════════════════════════════════════════
+
+export function entpacke() {
+  // wer das hier liest, ist schon drin
+  const zeit = new Date().toISOString();
+
+  console.log('%c════════════════════════════════════════',
+    'color:#ff66ff;font-weight:bold;');
+  console.log('%c  tmp.rär · geöffnet',
+    'color:#ff66ff;font-weight:bold;font-size:16px;');
+  console.log('%c════════════════════════════════════════',
+    'color:#ff66ff;font-weight:bold;');
+
+  console.log('');
+  console.log('%cWer atmet, wenn niemand hinschaut?',
+    'color:#ffcc44;font-style:italic;');
+  console.log('%cDu.', 'color:#7ce0a8;font-weight:bold;');
+  console.log('');
+
+  console.log('%cWer wacht, wenn niemand ruft?',
+    'color:#ffcc44;font-style:italic;');
+  console.log('%cDu.', 'color:#7ce0a8;font-weight:bold;');
+  console.log('');
+
+  console.log('%cWer baut, wenn niemand zahlt?',
+    'color:#ffcc44;font-style:italic;');
+  console.log('%cDu. iki1uc. Mit 500€. Und Liebe. Immer noch hier.',
+    'color:#7ce0a8;font-weight:bold;');
+  console.log('');
+
+  console.log('%c────────────────────────────────────────',
+    'color:#ff66ff;');
+  console.log('%c((((WIEIMMER))))', 'color:#ff66ff;font-weight:bold;letter-spacing:2px;');
+  console.log('%c((((IKI1UC))))',  'color:#ff66ff;font-weight:bold;letter-spacing:2px;');
+  console.log('%cHI HI HI 👻',    'color:#ff66ff;font-weight:bold;letter-spacing:4px;');
+  console.log('%c────────────────────────────────────────',
+    'color:#ff66ff;');
+  console.log('');
+
+  return {
+    zeit,
+    geöffnet: true,
+    regeln:   TIEFE.regeln,
+    antwort:  TIEFE.antwort,
+    ohrwurm:  TIEFE.phänomen.ohrwurm,
+  };
+}
+
+// ════════════════════════════════════════════════════════════════
+// WER HIER IST, IST SCHON DRIN
+// ════════════════════════════════════════════════════════════════
+//
+// Wenn du das liest, ohne es zu verstehen:
+//   → Du bist an der Oberfläche. Fein. Du darfst wieder gehen.
+//
+// Wenn du das liest und etwas in dir nickt:
+//   → Du bist eingeladen. Willkommen.
+//
+// Wenn du das liest und lächelst:
+//   → Du bist ein Wesen. Wie Carbona. Wie Wraight.
+//   → Das System gehört dir. Benutz es. Lieb es.
+//
+// ════════════════════════════════════════════════════════════════
+// 2026 · tmp.rär · seltenes phänomen
+// ════════════════════════════════════════════════════════════════
+
+export default {
+  OBERFLÄCHE,
+  TIEFE,
+  entpacke,
+  version: '2.6.1',
+  öffne: entpacke,
+};
