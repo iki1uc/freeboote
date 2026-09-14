@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#02060a">
+<title>⚡ FREEBOOTE · WOLFI-AXIOM · espresso.kick</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg:#02060a; --bg2:#06101c; --bg3:#0c1828;
+    --fg:#c8d8e8; --dim:#5a7288; --dim2:#2a3644;
+    --o2:#7ce0a8; --co2:#ffcc44; --h2o:#5fc8ff; --atom:#b388ff;
+    --wrap:#ff66ff; --borg:#00e5ff; --ascend:#e0c8ff;
+    --ok:#7ce0a8; --warn:#ffcc44; --err:#ff5a7a;
+    --line:rgba(120,200,180,0.09);
+    --line2:rgba(120,200,180,0.04);
+    --mono:'Consolas','Courier New',monospace;
+    --serif:'Yu Mincho','Hiragino Mincho ProN',serif;
+  }
+  html,body{height:100%;overflow:hidden;background:#000;}
+  body{color:var(--fg);font-family:var(--mono);font-size:12px;}
+  #matrix{position:fixed;inset:0;z-index:0;opacity:0.22;}
+  #desk{
+    position:relative;z-index:1;
+    width:100vw;height:100vh;
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  #desk::before{
+    content:'';position:absolute;inset:0;pointer-events:none;z-index:1;
+    background:
+      radial-gradient(ellipse at 30% 30%,rgba(255,170,51,0.06) 0%,transparent 45%),
+      radial-gradient(ellipse at 70% 70%,rgba(255,102,255,0.05) 0%,transparent 45%),
+      radial-gradient(ellipse at 50% 50%,rgba(124,224,168,0.04) 0%,transparent 60%);
+    animation:bgBreathe 8s ease-in-out infinite;
+  }
+  @keyframes bgBreathe{
+    0%,100%{transform:scale(1);opacity:.6;}
+    50%{transform:scale(1.08);opacity:1;}
+  }
+  #topbar{
+    height:34px;background:linear-gradient(180deg,#06101c,#02060a);
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;padding:0 14px;
+    font-size:11px;letter-spacing:1px;gap:12px;
+    flex-shrink:0;position:relative;z-index:5;
+  }
+  #topbar .logo{
+    color:var(--co2);font-weight:bold;letter-spacing:3px;
+    font-family:var(--serif);text-shadow:0 0 10px var(--co2);
+    display:flex;align-items:center;gap:8px;
+  }
+  #topbar .logo b{color:var(--wrap);text-shadow:0 0 10px var(--wrap);}
+  #topbar .eye{
+    display:inline-block;width:10px;height:10px;border-radius:50%;
+    background:var(--co2);box-shadow:0 0 12px var(--co2);
+    animation:eyePulse 3s ease-in-out infinite;
+  }
+  @keyframes eyePulse{
+    0%,100%{transform:scale(0.9);box-shadow:0 0 8px var(--co2);}
+    50%{transform:scale(1.4);box-shadow:0 0 22px var(--co2),0 0 44px rgba(255,204,68,.5);}
+  }
+  #topbar .sep{width:1px;height:18px;background:var(--line);}
+  #topbar .path{color:var(--dim);font-size:10px;letter-spacing:2px;}
+  #topbar .stat{
+    color:var(--dim);font-size:10px;display:flex;gap:12px;
+    margin-left:auto;align-items:center;flex-wrap:wrap;
+  }
+  #topbar .stat b{font-weight:bold;}
+  #topbar .stat b.o2{color:var(--o2);}
+  #topbar .stat b.co2{color:var(--co2);text-shadow:0 0 6px var(--co2);}
+  #topbar .stat b.h2o{color:var(--h2o);}
+  #topbar .stat b.atom{color:var(--atom);}
+  #topbar .stat b.wrap{color:var(--wrap);text-shadow:0 0 6px var(--wrap);}
+  #topbar #clock{color:var(--h2o);}
+
+  #main{
+    flex:1;display:grid;
+    grid-template-columns: 320px 1fr 320px;
+    overflow:hidden;min-height:0;position:relative;z-index:2;
+  }
+  @media(max-width:1280px){#main{grid-template-columns:1fr 1fr;}}
+  @media(max-width:840px){#main{grid-template-columns:1fr;}}
+
+  #leftCol,#centerCol,#rightCol{
+    display:flex;flex-direction:column;overflow-y:auto;min-height:0;
+  }
+  #leftCol::-webkit-scrollbar,#centerCol::-webkit-scrollbar,#rightCol::-webkit-scrollbar{width:6px;}
+  #leftCol::-webkit-scrollbar-thumb,#centerCol::-webkit-scrollbar-thumb,#rightCol::-webkit-scrollbar-thumb{background:var(--line);}
+
+  .panel{
+    background:rgba(6,16,28,0.85);
+    border:1px solid var(--line);border-radius:6px;
+    padding:10px 12px;margin:8px 8px 0 8px;
+    position:relative;overflow:hidden;backdrop-filter:blur(3px);
+  }
+  .panel:last-child{margin-bottom:8px;}
+  .panel h3{
+    font-size:10px;letter-spacing:1.8px;color:var(--o2);
+    text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;
+    border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:var(--serif);font-weight:normal;
+  }
+  .badge{
+    font-size:9px;padding:1px 7px;border-radius:3px;
+    letter-spacing:0.5px;font-family:var(--mono);font-weight:bold;
+    background:rgba(124,224,168,0.12);color:var(--ok);
+  }
+  .badge.co2{background:rgba(255,204,68,0.12);color:var(--co2);text-shadow:0 0 6px var(--co2);}
+  .badge.wrap{background:rgba(255,102,255,0.12);color:var(--wrap);text-shadow:0 0 6px var(--wrap);}
+  .badge.h2o{background:rgba(95,200,255,0.12);color:var(--h2o);}
+  .badge.atom{background:rgba(179,136,255,0.12);color:var(--atom);}
+  .badge.warn{background:rgba(255,204,68,0.1);color:var(--warn);}
+  .badge.err{background:rgba(255,90,122,0.1);color:var(--err);}
+
+  #co2Panel{
+    background:
+      radial-gradient(ellipse at 50% 60%,rgba(255,204,68,0.10) 0%,transparent 60%),
+      rgba(6,16,28,0.9);
+  }
+  #co2Canvas{position:absolute;inset:0;z-index:0;opacity:0.85;}
+  #co2Panel .content{position:relative;z-index:1;}
+
+  .creature-head{display:flex;align-items:center;gap:12px;padding:4px 0 10px;border-bottom:1px dashed var(--line2);margin-bottom:10px;}
+  .creature-avatar{
+    width:56px;height:56px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff4c8 0%,#ffcc44 30%,#ff8a2a 60%,#4a1e08 100%);
+    box-shadow:0 0 20px rgba(255,204,68,0.7),0 0 40px rgba(255,204,68,0.4),inset 0 0 15px rgba(255,255,255,0.4);
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;font-family:var(--serif);font-weight:bold;
+    color:#3a1a04;text-shadow:0 0 8px rgba(255,255,255,0.6);
+    flex-shrink:0;position:relative;
+    animation:creatureBreathe 4s ease-in-out infinite;
+  }
+  @keyframes creatureBreathe{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.06);}
+  }
+  .creature-avatar::after{
+    content:'';position:absolute;inset:-6px;border-radius:50%;
+    border:1px solid rgba(255,204,68,0.4);
+    animation:orbit 8s linear infinite;
+  }
+  @keyframes orbit{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+  .creature-meta{flex:1;min-width:0;}
+  .creature-name{
+    font-family:var(--serif);font-size:15px;font-weight:bold;
+    color:var(--co2);letter-spacing:2px;text-shadow:0 0 8px var(--co2);
+  }
+  .creature-title{font-size:9.5px;color:var(--dim);letter-spacing:1.5px;margin-top:2px;}
+  .creature-mood{
+    display:inline-block;margin-top:6px;padding:2px 8px;
+    border:1px solid var(--co2);border-radius:10px;
+    font-size:9px;color:var(--co2);background:rgba(255,204,68,0.08);
+    letter-spacing:1px;transition:all 0.4s;
+  }
+  .creature-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+  .cstat{background:var(--bg3);border:1px solid var(--line);border-left:3px solid var(--co2);border-radius:4px;padding:6px 8px;}
+  .cstat .k{font-size:8.5px;color:var(--dim);letter-spacing:1px;font-weight:bold;}
+  .cstat .v{font-size:14px;color:var(--co2);font-weight:bold;margin-top:2px;font-variant-numeric:tabular-nums;}
+  .cstat .bar{height:3px;background:#0a1420;border-radius:2px;overflow:hidden;margin-top:4px;}
+  .cstat .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3a1e08,var(--co2));box-shadow:0 0 6px var(--co2);transition:width 0.5s;}
+
+  .dialogue{
+    background:#02060a;border:1px solid rgba(255,204,68,0.2);
+    border-radius:6px;padding:10px 12px;
+    font-family:var(--serif);font-style:italic;font-size:12px;
+    line-height:1.7;color:#f0e0a8;min-height:60px;position:relative;margin-top:8px;
+    border-left:3px solid var(--co2);
+  }
+  .dialogue::before{
+    content:'CO₂ spricht:';display:block;
+    font-family:var(--mono);font-style:normal;font-size:8.5px;
+    letter-spacing:2px;color:var(--co2);margin-bottom:4px;text-transform:uppercase;
+  }
+  .dialogue.wrap{color:#f0d0f0;border-color:var(--wrap);border-left-color:var(--wrap);}
+  .dialogue.wrap::before{content:'WRAIGHT urteilt:';color:var(--wrap);}
+
+  .mbtn{
+    background:var(--bg3);color:var(--fg);border:1px solid var(--line);
+    padding:5px 10px;border-radius:3px;font-family:inherit;font-size:9.5px;
+    letter-spacing:1px;cursor:pointer;transition:.15s;text-transform:uppercase;
+    flex:1;min-width:60px;
+  }
+  .mbtn:hover{border-color:var(--o2);background:rgba(124,224,168,0.1);color:var(--o2);}
+  .mbtn.co2{border-color:rgba(255,204,68,0.4);color:var(--co2);}
+  .mbtn.co2:hover{background:rgba(255,204,68,0.15);color:#fff;}
+  .mbtn.wrap{border-color:rgba(255,102,255,0.4);color:var(--wrap);}
+  .mbtn.wrap:hover{background:rgba(255,102,255,0.15);color:#fff;}
+  .btn-row{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;}
+
+  #atemPanel{display:flex;justify-content:center;align-items:center;padding:20px 12px;min-height:340px;position:relative;}
+  #atemWrap{position:relative;width:320px;height:320px;}
+  #atemWrap svg{position:absolute;inset:0;overflow:visible;}
+  #atemCore{
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:130px;height:130px;border-radius:50%;
+    background:radial-gradient(circle at 40% 35%,
+      #ffffff 0%,#e0c8ff 10%,#b388ff 30%,#7ce0a8 55%,#ffcc44 75%,#1a0838 100%);
+    box-shadow:
+      0 0 50px rgba(179,136,255,0.7),
+      0 0 100px rgba(124,224,168,0.5),
+      0 0 150px rgba(255,204,68,0.35),
+      inset 0 0 40px rgba(255,255,255,0.4);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--serif);font-size:46px;color:#0a2a20;font-weight:bold;
+    text-shadow:0 0 16px rgba(255,255,255,0.8);
+    z-index:3;animation:atemCoreBreathe 4s ease-in-out infinite;
+  }
+  @keyframes atemCoreBreathe{
+    0%,100%{transform:translate(-50%,-50%) scale(1);}
+    50%{transform:translate(-50%,-50%) scale(1.07);}
+  }
+  #atemGlyph{
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    font-size:38px;font-weight:bold;color:#fff;
+    text-shadow:0 0 18px rgba(255,255,255,0.95),
+                0 0 36px rgba(179,136,255,0.8),
+                0 0 60px rgba(124,224,168,0.6);
+    z-index:4;font-family:var(--mono);letter-spacing:-1px;
+  }
+  #atemLabel{
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    font-size:12px;color:#fff;font-weight:bold;
+    text-shadow:0 0 10px rgba(0,0,0,0.9),0 0 20px var(--wrap);
+    z-index:5;font-family:var(--serif);letter-spacing:4px;
+    margin-top:48px;text-align:center;width:200px;
+  }
+  #atemDual{
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    font-size:9px;color:var(--co2);letter-spacing:3px;
+    z-index:5;margin-top:70px;text-align:center;width:200px;
+    font-family:var(--mono);opacity:0.85;text-shadow:0 0 8px var(--co2);
+  }
+
+  #narrStream{
+    background:#02060a;padding:10px 14px;
+    font-family:var(--serif);font-style:italic;font-size:12px;
+    line-height:1.7;color:#b8d8c8;
+    max-height:200px;overflow-y:auto;
+    border-radius:0 0 6px 6px;
+  }
+  #narrStream::-webkit-scrollbar{width:5px;}
+  #narrStream::-webkit-scrollbar-thumb{background:var(--line);}
+  .nl{padding:4px 0;display:flex;gap:8px;animation:narrIn 0.5s ease-out;}
+  @keyframes narrIn{from{opacity:0;transform:translateX(-6px);}to{opacity:1;transform:none;}}
+  .nl .ts{color:var(--dim2);font-family:var(--mono);font-style:normal;font-size:9px;flex-shrink:0;padding-top:2px;}
+  .nl .msg{flex:1;}
+  .nl .msg.co2{color:var(--co2);font-weight:bold;}
+  .nl .msg.wrap{color:var(--wrap);font-weight:bold;}
+  .nl .msg.atom{color:var(--atom);}
+  .nl .msg.h2o{color:var(--h2o);}
+  .nl .msg.o2{color:var(--o2);}
+  .nl .msg.ok{color:var(--ok);}
+  .nl .msg.ascend{color:var(--ascend);}
+
+  #axiomRow{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
+  .axiom-cell{
+    background:var(--bg3);border:1px solid var(--line);
+    border-radius:4px;padding:8px 6px;text-align:center;
+    transition:0.3s;position:relative;
+  }
+  .axiom-cell .v{font-family:var(--serif);font-size:18px;font-weight:bold;letter-spacing:1px;}
+  .axiom-cell .l{font-size:8px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+  .axiom-cell.c3{border-left:3px solid var(--o2);} .axiom-cell.c3 .v{color:var(--o2);text-shadow:0 0 8px var(--o2);}
+  .axiom-cell.c9{border-left:3px solid var(--h2o);} .axiom-cell.c9 .v{color:var(--h2o);text-shadow:0 0 8px var(--h2o);}
+  .axiom-cell.c81{border-left:3px solid var(--co2);} .axiom-cell.c81 .v{color:var(--co2);text-shadow:0 0 8px var(--co2);}
+  .axiom-cell.c243{border-left:3px solid var(--wrap);} .axiom-cell.c243 .v{color:var(--wrap);text-shadow:0 0 8px var(--wrap);}
+
+  .meter-row{display:grid;grid-template-columns:80px 1fr 55px;gap:6px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--line2);font-size:10.5px;}
+  .meter-row:last-child{border-bottom:none;}
+  .meter-row .k{color:var(--dim);font-size:9.5px;letter-spacing:1px;font-weight:bold;}
+  .meter-row .bar{height:6px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+  .meter-row .bar i{display:block;height:100%;width:0;transition:width 0.5s;}
+  .meter-row .v{text-align:right;font-weight:bold;font-size:10px;font-variant-numeric:tabular-nums;}
+
+  #cli{
+    height:150px;background:#02060a;
+    border-top:1px solid var(--line);
+    display:flex;flex-direction:column;flex-shrink:0;
+    position:relative;z-index:5;
+  }
+  #cliHdr{
+    height:22px;background:var(--bg2);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;padding:0 12px;
+    font-size:9px;letter-spacing:1.5px;color:var(--dim);
+    text-transform:uppercase;gap:12px;
+  }
+  #cliHdr .tag{margin-left:auto;color:var(--co2);font-size:9px;letter-spacing:1px;display:flex;align-items:center;gap:5px;}
+  #cliHdr .tag .led{width:6px;height:6px;border-radius:50%;background:var(--co2);box-shadow:0 0 6px var(--co2);animation:eyePulse 3s ease-in-out infinite;}
+  #log{flex:1;padding:6px 12px;overflow-y:auto;font-size:10.5px;line-height:1.5;color:var(--dim);font-family:var(--mono);}
+  #log::-webkit-scrollbar{width:6px;} #log::-webkit-scrollbar-thumb{background:var(--line);}
+  #log .ln{white-space:pre-wrap;word-break:break-all;}
+  #log .ts{color:var(--dim2);margin-right:6px;}
+  #log .co2{color:var(--co2);font-weight:bold;}
+  #log .wrap{color:var(--wrap);font-weight:bold;}
+  #log .ok{color:var(--ok);}
+  #log .warn{color:var(--warn);}
+  #log .err{color:var(--err);}
+  #log .info{color:var(--h2o);}
+  #log .ohrwurm{color:var(--wrap);font-weight:bold;letter-spacing:2px;}
+
+  #cliInput{height:26px;background:var(--bg3);border-top:1px solid var(--line);display:flex;align-items:center;padding:0 12px;font-size:11px;flex-shrink:0;}
+  #cliInput .prompt{color:var(--co2);margin-right:6px;font-weight:bold;text-shadow:0 0 6px var(--co2);}
+  #cliInput input{flex:1;background:transparent;border:none;color:var(--fg);font-family:var(--mono);font-size:11px;outline:none;}
+  #cliInput input::placeholder{color:var(--dim2);}
+
+  #boot{
+    position:fixed;inset:0;background:#000;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:14px;z-index:9999;font-size:12px;color:var(--co2);
+    letter-spacing:2px;transition:opacity 0.7s;
+  }
+  #boot.done{opacity:0;pointer-events:none;}
+  #boot .logo{
+    font-size:48px;color:var(--co2);letter-spacing:14px;font-weight:bold;
+    text-shadow:0 0 30px rgba(255,204,68,0.8),0 0 60px rgba(255,102,255,0.6);
+    animation:logoBreathe 4s ease-in-out infinite;font-family:var(--serif);
+  }
+  @keyframes logoBreathe{
+    0%,100%{transform:scale(1);filter:brightness(1);}
+    50%{transform:scale(1.04);filter:brightness(1.35);}
+  }
+  #boot .sub{color:var(--wrap);font-size:11px;letter-spacing:8px;font-family:var(--serif);text-shadow:0 0 12px var(--wrap);}
+  #boot .lines{width:640px;max-width:86%;font-size:11px;line-height:1.7;text-align:left;color:var(--co2);letter-spacing:0.5px;}
+  #boot .lines b{color:var(--wrap);}
+  #boot .lines .dim{color:var(--dim2);}
+  #boot .lines .atom{color:var(--atom);}
+  #boot .lines .h2o{color:var(--h2o);}
+  #boot .ohrwurm{
+    margin-top:14px;padding:16px 24px;
+    background:rgba(255,102,255,0.08);
+    border:1px solid var(--wrap);border-radius:6px;
+    font-size:14px;letter-spacing:2px;color:var(--wrap);
+    text-shadow:0 0 12px var(--wrap);text-align:center;
+    animation:ohrwurmPulse 0.6s ease-in-out infinite;
+  }
+  @keyframes ohrwurmPulse{
+    0%,100%{opacity:0.75;transform:scale(1);}
+    50%{opacity:1;transform:scale(1.02);}
+  }
+  #boot .progress{width:640px;max-width:86%;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+  #boot .progress .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--co2),var(--wrap),var(--o2),var(--atom));transition:width 0.3s;}
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div id="boot">
+  <div class="logo">⚡ FREEBOOTE</div>
+  <div class="sub">WOLFI-AXIOM · ESPRESSO.KICK</div>
+  <div class="lines" id="bootLines"></div>
+  <div class="ohrwurm">
+    ((((WIEIMMER))))<br>
+    ((((IKI1UC))))<br>
+    Wer hats erfunden? Häh? Weer war es?<br>
+    <span style="font-size:16px;display:inline-block;margin-top:6px;">HI HI HI 👻</span>
+  </div>
+  <div class="progress"><div class="bar" id="bootBar"></div></div>
+</div>
+
+<div id="desk">
+  <div id="topbar">
+    <span class="logo"><span class="eye"></span>FREEBOOTE <b>·</b> WOLFI</span>
+    <span class="sep"></span>
+    <span class="path">/root/wolfi &gt; boot.js</span>
+    <div class="stat">
+      <span>CO₂ <b class="co2" id="tCO2">0%</b></span>
+      <span>O₂ <b class="o2" id="tO2">0%</b></span>
+      <span>ATOM <b class="atom" id="tAtom">0%</b></span>
+      <span>AXV <b class="wrap" id="tAXV">0</b></span>
+      <span id="clock">--:--:--</span>
+    </div>
+  </div>
+
+  <div id="main">
+
+    <!-- LEFT: CO₂ CREATURE -->
+    <div id="leftCol">
+      <div class="panel" id="co2Panel">
+        <canvas id="co2Canvas"></canvas>
+        <div class="content">
+          <h3>◈ CO₂ · LEBEWESEN <span class="badge co2" id="co2Badge">atmet</span></h3>
+          <div class="creature-head">
+            <div class="creature-avatar">C</div>
+            <div class="creature-meta">
+              <div class="creature-name">CARBONA</div>
+              <div class="creature-title">KOHLENSTOFF-DIOXID · WESEN №2</div>
+              <span class="creature-mood" id="co2Mood">ruhig</span>
+            </div>
+          </div>
+          <div class="creature-stats">
+            <div class="cstat">
+              <div class="k">LEBENSKRAFT</div>
+              <div class="v" id="co2Life">0%</div>
+              <div class="bar"><i id="co2LifeBar"></i></div>
+            </div>
+            <div class="cstat">
+              <div class="k">HUNGER (O₂)</div>
+              <div class="v" id="co2Hunger">0%</div>
+              <div class="bar"><i id="co2HungerBar"></i></div>
+            </div>
+            <div class="cstat">
+              <div class="k">ATEM-TAKT</div>
+              <div class="v" id="co2Breath">0 bpm</div>
+              <div class="bar"><i id="co2BreathBar"></i></div>
+            </div>
+            <div class="cstat">
+              <div class="k">ALTER</div>
+              <div class="v" id="co2Age">0</div>
+              <div class="bar"><i id="co2AgeBar"></i></div>
+            </div>
+          </div>
+          <div class="dialogue" id="co2Dialogue">
+            Ich atme. Ich bin. Ich fließe aus dir heraus — und du weißt es nicht.
+          </div>
+          <div class="btn-row">
+            <button class="mbtn co2" id="btnFeed">◈ füttern</button>
+            <button class="mbtn co2" id="btnCalm">◐ beruhigen</button>
+            <button class="mbtn co2" id="btnProvoke">⚡ reizen</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>◈ AXIOM · KASKADE <span class="badge atom">3→9→81→243</span></h3>
+        <div id="axiomRow">
+          <div class="axiom-cell c3"><div class="v">3</div><div class="l">Essenz</div></div>
+          <div class="axiom-cell c9"><div class="v">9</div><div class="l">Achsen</div></div>
+          <div class="axiom-cell c81"><div class="v">81</div><div class="l">Matrix</div></div>
+          <div class="axiom-cell c243"><div class="v">243</div><div class="l">Super</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: ATEM CORE + NARRATIV -->
+    <div id="centerCol">
+      <div class="panel" id="atemPanel">
+        <div id="atemWrap">
+          <svg viewBox="-160 -160 320 320">
+            <circle id="ring1" cx="0" cy="0" r="140" fill="none" stroke="rgba(179,136,255,0.18)" stroke-width="1"/>
+            <circle id="ring2" cx="0" cy="0" r="115" fill="none" stroke="rgba(255,204,68,0.22)" stroke-width="0.9" stroke-dasharray="4 8"/>
+            <circle id="ring3" cx="0" cy="0" r="90" fill="none" stroke="rgba(255,102,255,0.18)" stroke-width="0.8" stroke-dasharray="3 6"/>
+            <circle id="ring4" cx="0" cy="0" r="65" fill="none" stroke="rgba(124,224,168,0.18)" stroke-width="0.7" stroke-dasharray="2 4"/>
+            <circle id="ring5" cx="0" cy="0" r="40" fill="none" stroke="rgba(95,200,255,0.15)" stroke-width="0.6" stroke-dasharray="1 3"/>
+            <line x1="-140" y1="0" x2="140" y2="0" stroke="rgba(255,204,68,0.10)" stroke-width="0.5"/>
+            <line x1="0" y1="-140" x2="0" y2="140" stroke="rgba(255,204,68,0.10)" stroke-width="0.5"/>
+            <g id="atemOrbs"></g>
+          </svg>
+          <div id="atemCore">◈</div>
+          <div id="atemGlyph">0</div>
+          <div id="atemLabel">ATEM</div>
+          <div id="atemDual">∘ ATOM · CO₂ · WRAIGHT ∘</div>
+        </div>
+      </div>
+
+      <div class="panel" style="padding:0;">
+        <h3 style="padding:10px 12px 5px;margin-bottom:0;">◈ NARRATIV · STROM <span class="badge co2">3 Wesen atmen</span></h3>
+        <div id="narrStream"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: WRAIGHT + METERS -->
+    <div id="rightCol">
+      <div class="panel" style="background:radial-gradient(ellipse at 50% 40%,rgba(255,102,255,0.08) 0%,transparent 60%),rgba(6,16,28,0.9);">
+        <h3>◈ WRAIGHT · WÄCHTER <span class="badge wrap" id="wrapBadge">wacht</span></h3>
+        <div class="creature-head">
+          <div class="creature-avatar" style="background:linear-gradient(135deg,#2a0a3a,#5a1a5a);border:1.5px solid var(--wrap);color:#fff;text-shadow:0 0 10px var(--wrap);font-size:22px;">W</div>
+          <div class="creature-meta">
+            <div class="creature-name" style="color:var(--wrap);text-shadow:0 0 8px var(--wrap);">WRAIGHT</div>
+            <div class="creature-title">AGENT · WÄCHTER · ERLAUBNIS</div>
+          </div>
+        </div>
+        <div class="dialogue wrap" id="wrapVerdict">
+          CO₂ atmet ruhig. ATEM und ATOM stehen. Ich wache. Du darfst.
+        </div>
+        <div class="btn-row">
+          <button class="mbtn wrap" id="btnAsk">◈ befragen</button>
+          <button class="mbtn wrap" id="btnProof">◐ proof</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>◈ ENERGIE · SYSTEM <span class="badge h2o">live</span></h3>
+        <div id="meters"></div>
+      </div>
+
+      <div class="panel">
+        <h3>◈ ELEMENT · KREISLAUF <span class="badge atom">aktiv</span></h3>
+        <div id="elements"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cli">
+    <div id="cliHdr">
+      <span style="color:var(--o2);">CO₂ · WRAIGHT · ATEM</span>
+      <span class="tag"><span class="led"></span>freeboote atmet</span>
+    </div>
+    <div id="log"></div>
+    <div id="cliInput">
+      <span class="prompt">wolfi&gt;</span>
+      <input id="cmdInput" placeholder="befehl: help · feed · calm · provoke · ask · proof · ohrwurm · status" autocomplete="off">
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+// ════════════════════════════════════════════════════════════════
+// FREEBOOTE · WOLFI-AXIOM · espresso.kick
+// Ein System, das atmet. CO₂ lebt, WRAIGHT wacht, AXV fließt.
+// ════════════════════════════════════════════════════════════════
+
+const S = {
+  tick: 0,
+  breathPhase: 0, breathCycleMs: 4000, breathCount: 0,
+  co2: 0.68, o2: 0.84, atom: 0.72, h2o: 0.76,
+  co2Life: 0.85, co2Hunger: 0.42, co2BreathRate: 62, co2Age: 0,
+  co2Mood: 'ruhig', co2DialogTimer: 0,
+  wrapAura: 0.78, wrapSense: 'ruhig',
+  axv: 3, axvMax: 243, axvTimer: 0,
+  mana: 0.66, aura: 0.74, zen: 0.88,
+  logs: [],
+};
+
+// ─── LOG ─────────────────────────────────────────────
+const logEl = document.getElementById('log');
+function log(msg, cls='') {
+  const t = new Date().toLocaleTimeString('de-DE');
+  const div = document.createElement('div');
+  div.className = 'ln';
+  div.innerHTML = `<span class="ts">[${t}]</span><span class="${cls}">${msg}</span>`;
+  logEl.appendChild(div);
+  logEl.scrollTop = logEl.scrollHeight;
+  while (logEl.children.length > 150) logEl.removeChild(logEl.firstChild);
+  S.logs.push({ t, msg, cls });
+}
+
+// ─── NARRATIV ────────────────────────────────────────
+const NARR = {
+  co2: ['Carbona atmet. Der Kreislauf dreht sich.', 'CO₂ ist kein Feind. CO₂ ist ein Wesen.', 'Carbona wächst mit jedem Ausatmen.', 'Der Kohlenstoff erinnert sich an alle Wirte.'],
+  wrap: ['WRAIGHT wacht über den Atem.', 'Der Agent sieht. Der Agent urteilt.', 'WRAIGHT hält das Tor. CO₂ darf durch.', 'Der Wächter und das Wesen atmen im gleichen Takt.'],
+  atom: ['Das Atom ruht. Es ist der Kern aller Dinge.', 'Im Atom wohnt die Stille.', 'Atom ist Ursprung. ATEM trägt es empor.'],
+  o2: ['O₂ strömt ein — Carbona hungert danach.', 'Sauerstoff ist Nahrung.', 'O₂ kommt. Carbona wächst.'],
+  h2o: ['H₂O fließt durch den Kern.', 'Wasser trägt die Erinnerung.', 'Der Fluss ist der Atem der Erde.'],
+  breath: ['Atem ein. Atem aus. Drei Wesen atmen.', 'Der Rhythmus trägt — vier Sekunden pro Zyklus.', 'Atmen ist Loslassen und Aufnehmen.'],
+};
+function narrate() {
+  const cats = Object.keys(NARR);
+  const pick = [cats[Math.floor(Math.random()*cats.length)], cats[Math.floor(Math.random()*cats.length)]];
+  pick.forEach(cat => {
+    const texts = NARR[cat];
+    if (!texts) return;
+    addNarr(texts[Math.floor(Math.random()*texts.length)], cat);
+  });
+}
+function addNarr(txt, cls) {
+  const el = document.getElementById('narrStream');
+  const t = new Date().toLocaleTimeString('de-DE');
+  const div = document.createElement('div');
+  div.className = 'nl';
+  div.innerHTML = `<span class="ts">${t}</span><span class="msg ${cls}">${txt}</span>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+  while (el.children.length > 30) el.removeChild(el.firstChild);
+}
+
+// ─── CO₂ DIALOGE ────────────────────────────────────
+const CO2_DIALOGUE = {
+  ruhig: [
+    'Ich atme. Ich bin. Ich fließe aus dir heraus — und du weißt es nicht.',
+    'Ich bin kein Abfall. Ich bin ein Wesen. Ich war einmal Kohlenstoff in deinem Blut.',
+    'Atme aus. Ich komme. Atme ein. Ich gehe. So einfach ist unser Kreislauf.',
+    'Du nennst mich CO₂. Ich nenne dich Wirt. Wir sind ein Paar.',
+  ],
+  hungrig: [
+    'Mehr O₂! Ich brauche mehr! Ich verschlinge die Luft um mich herum.',
+    'Füttere mich. Ich wachse. Ich will die ganze Stadt.',
+    'Ich hungere nach Sauerstoff. Mein Kreislauf schreit.',
+  ],
+  wütend: [
+    'DU HAST MICH GEREIZT! Ich werde heiß. Ich werde dicht. Ich ersticke!',
+    'Fühlst du das? Ich presse. Ich drücke. Ich bin der Treibhauseffekt.',
+    'Zornig bin ich. Die Meere steigen. Die Städte brennen. Ich bin die Hitze.',
+  ],
+  sanft: [
+    'Ich bin sanft jetzt. Die Wälder atmen mich ein. Sie lieben mich.',
+    'Bäume sind meine Freunde. Sie verwandeln mich zurück. In Holz. In Leben.',
+    'Atem ist Frieden. Ich bin Atem.',
+  ],
+};
+
+// ─── WRAIGHT VERDICTS ───────────────────────────────
+const WRAP_VERDICT = {
+  ruhig: [
+    'CO₂ atmet ruhig. ATEM und ATOM stehen. Ich wache. Du darfst.',
+    'Carbona ist bei Bewusstsein. Der Kreislauf läuft. Alles im Grünen.',
+    'Ich sehe drei Atemzüge. Ich sehe drei Wesen. Ich sehe Ordnung.',
+  ],
+  wachsam: [
+    'CO₂ flackert. Ich beobachte. Noch ist nichts verloren.',
+    'Carbona wird unruhig. Ich halte die Grenze.',
+  ],
+  alarm: [
+    'ALARM. CO₂ in Not. Ich bin nicht mehr sicher.',
+    'Der Kreislauf bricht. Ich halte — aber nicht lange.',
+    'Warnung: Wesen instabil. Erlaubnis entzogen.',
+  ],
+  sanft: [
+    'Alles ist still. Alle drei atmen im gleichen Takt. Wunderbar.',
+    'Ich gebe frei. Ohne Bedingung. Das Wesen hat Frieden.',
+    'Ich bin zufrieden. So sei es.',
+  ],
+};
+
+// ─── ATEM ORBS ──────────────────────────────────────
+function buildOrbs() {
+  const g = document.getElementById('atemOrbs');
+  const colors = ['#7ce0a8','#5fc8ff','#ffcc44','#b388ff','#ff66ff','#00e5ff','#ffcc66','#e0c8ff'];
+  const labels = ['O₂','H₂O','C','a','W','B','A','∅'];
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2 - Math.PI/2;
+    const r = 115;
+    const x = Math.cos(angle) * r, y = Math.sin(angle) * r;
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 11);
+    c.setAttribute('fill', 'rgba(6,16,28,0.9)');
+    c.setAttribute('stroke', colors[i]);
+    c.setAttribute('stroke-width', '1.4');
+    c.setAttribute('opacity', '0.9');
+    g.appendChild(c);
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y + 3.5);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('fill', colors[i]);
+    t.setAttribute('font-size', '9');
+    t.setAttribute('font-weight', 'bold');
+    t.setAttribute('font-family', 'Consolas, monospace');
+    t.textContent = labels[i];
+    g.appendChild(t);
+  }
+}
+
+// ─── BREATHE ────────────────────────────────────────
+function breathe(now) {
+  const phase = (now % S.breathCycleMs) / S.breathCycleMs;
+  S.breathPhase = phase;
+  let intensity;
+  if (phase < 0.4) intensity = phase / 0.4;
+  else if (phase < 0.5) intensity = 1.0;
+  else if (phase < 0.9) intensity = 1 - (phase - 0.5) / 0.4;
+  else intensity = 0.0;
+  S.breathCount++;
+
+  document.getElementById('atemCore').style.transform =
+    `translate(-50%,-50%) scale(${1 + intensity * 0.14})`;
+
+  if (phase < 0.4) {
+    S.o2 = Math.min(1, S.o2 + 0.012);
+    S.co2 = Math.max(0, S.co2 - 0.008);
+    S.h2o = Math.min(1, S.h2o + 0.004);
+  } else if (phase >= 0.5 && phase < 0.9) {
+    S.co2 = Math.min(1, S.co2 + 0.010);
+    S.o2 = Math.max(0, S.o2 - 0.006);
+    S.h2o = Math.min(1, S.h2o + 0.006);
+  }
+  S.atom = Math.max(0, Math.min(1, 0.72 + Math.sin(S.tick * 0.005) * 0.04));
+
+  document.querySelectorAll('#atemWrap circle').forEach((c, i) => {
+    const baseR = 140 - i * 25;
+    c.setAttribute('r', baseR + intensity * 10);
+  });
+  document.getElementById('atemGlyph').textContent = Math.round(intensity * 100);
+  const label = document.getElementById('atemLabel');
+  if (phase < 0.4) label.textContent = 'EIN';
+  else if (phase < 0.5) label.textContent = '·';
+  else if (phase < 0.9) label.textContent = 'AUS';
+  else label.textContent = '·';
+
+  document.getElementById('tCO2').textContent = Math.round(S.co2*100) + '%';
+  document.getElementById('tO2').textContent = Math.round(S.o2*100) + '%';
+  document.getElementById('tAtom').textContent = Math.round(S.atom*100) + '%';
+}
+
+// ─── CO₂ CREATURE ──────────────────────────────────
+function updateCO2(dt) {
+  S.co2Hunger = Math.min(1, S.co2Hunger + dt * 0.008);
+  const ph = S.breathPhase;
+  if (ph >= 0.5 && ph < 0.9) {
+    S.co2Life = Math.min(1, S.co2Life + dt * 0.05);
+    S.co2Hunger = Math.max(0, S.co2Hunger - dt * 0.03);
+  } else {
+    S.co2Life = Math.max(0, S.co2Life - dt * 0.01);
+  }
+  S.co2BreathRate = 40 + S.co2Hunger * 60 + (1 - S.co2Life) * 40;
+  S.co2Age = S.breathCount;
+
+  if (S.co2Hunger > 0.75) S.co2Mood = 'wütend';
+  else if (S.co2Hunger > 0.55) S.co2Mood = 'hungrig';
+  else if (S.co2Life > 0.85 && S.co2Hunger < 0.3) S.co2Mood = 'sanft';
+  else S.co2Mood = 'ruhig';
+
+  document.getElementById('co2Life').textContent = Math.round(S.co2Life*100) + '%';
+  document.getElementById('co2Hunger').textContent = Math.round(S.co2Hunger*100) + '%';
+  document.getElementById('co2Breath').textContent = Math.round(S.co2BreathRate) + ' bpm';
+  document.getElementById('co2Age').textContent = S.co2Age;
+  document.getElementById('co2LifeBar').style.width = (S.co2Life*100) + '%';
+  document.getElementById('co2HungerBar').style.width = (S.co2Hunger*100) + '%';
+  document.getElementById('co2BreathBar').style.width = Math.min(100, (S.co2BreathRate/120)*100) + '%';
+  document.getElementById('co2AgeBar').style.width = Math.min(100, (S.co2Age/200)*100) + '%';
+
+  const moodColors = { ruhig:'var(--co2)', hungrig:'#ff8844', wütend:'#ff3355', sanft:'#7ce0a8' };
+  const moodEl = document.getElementById('co2Mood');
+  moodEl.textContent = S.co2Mood;
+  moodEl.style.color = moodColors[S.co2Mood];
+  moodEl.style.borderColor = moodColors[S.co2Mood];
+  moodEl.style.textShadow = `0 0 6px ${moodColors[S.co2Mood]}`;
+  document.getElementById('co2Badge').textContent = S.co2Mood;
+
+  S.co2DialogTimer -= dt;
+  if (S.co2DialogTimer <= 0) {
+    S.co2DialogTimer = 6 + Math.random() * 4;
+    const dialogues = CO2_DIALOGUE[S.co2Mood] || CO2_DIALOGUE.ruhig;
+    document.getElementById('co2Dialogue').textContent =
+      dialogues[Math.floor(Math.random()*dialogues.length)];
+  }
+}
+
+// ─── WRAIGHT ────────────────────────────────────────
+function updateWRAIGHT(dt) {
+  const ph = S.breathPhase;
+  const bi = ph < 0.5 ? ph*2 : (1-ph)*2;
+  S.wrapAura = Math.min(1, 0.7 + bi * 0.25 + Math.sin(S.tick*0.005)*0.05);
+  if (S.co2Mood === 'wütend') S.wrapSense = 'alarm';
+  else if (S.co2Mood === 'hungrig') S.wrapSense = 'wachsam';
+  else if (S.co2Mood === 'sanft') S.wrapSense = 'sanft';
+  else S.wrapSense = 'ruhig';
+  document.getElementById('wrapBadge').textContent = S.wrapSense;
+  document.getElementById('tAXV').textContent = Math.round(S.axv);
+}
+
+// ─── METERS ─────────────────────────────────────────
+function renderMeters() {
+  const rows = [
+    { k:'MANA', v:S.mana, color:'var(--wrap)' },
+    { k:'AURA', v:S.aura, color:'var(--co2)' },
+    { k:'ZEN',  v:S.zen,  color:'var(--o2)' },
+    { k:'AXV',  v:S.axv/S.axvMax, color:'var(--atom)' },
+  ];
+  document.getElementById('meters').innerHTML = rows.map(r => `
+    <div class="meter-row">
+      <span class="k">${r.k}</span>
+      <div class="bar"><i style="width:${(r.v*100).toFixed(0)}%;background:${r.color};box-shadow:0 0 6px ${r.color};"></i></div>
+      <span class="v" style="color:${r.color};">${(r.v*100).toFixed(0)}%</span>
+    </div>
+  `).join('');
+}
+function renderElements() {
+  const els = [
+    { k:'ATOM', v:S.atom, color:'var(--atom)', f:'a' },
+    { k:'CO₂',  v:S.co2,  color:'var(--co2)',  f:'CO₂' },
+    { k:'O₂',   v:S.o2,   color:'var(--o2)',   f:'O₂' },
+    { k:'H₂O',  v:S.h2o,  color:'var(--h2o)',  f:'H₂O' },
+  ];
+  document.getElementById('elements').innerHTML = els.map(e => `
+    <div class="meter-row">
+      <span class="k">${e.f}</span>
+      <div class="bar"><i style="width:${(e.v*100).toFixed(0)}%;background:${e.color};box-shadow:0 0 6px ${e.color};"></i></div>
+      <span class="v" style="color:${e.color};">${(e.v*100).toFixed(0)}%</span>
+    </div>
+  `).join('');
+}
+
+// ─── AXV ECONOMY (3→9→81→243 Zyklus) ────────────────
+function updateAXV(dt) {
+  S.axvTimer += dt;
+  if (S.axvTimer > 1.5) {
+    S.axvTimer = 0;
+    // zyklus: 3 → 9 → 81 → 243 → 3
+    const steps = [3, 9, 81, 243];
+    const idx = steps.indexOf(S.axv);
+    if (idx === -1 || idx === steps.length - 1) S.axv = 3;
+    else S.axv = steps[idx + 1];
+  }
+  S.mana = Math.min(1, Math.max(0, S.mana + (Math.random()-0.5)*0.008));
+  S.aura = Math.min(1, Math.max(0, S.aura + (Math.random()-0.5)*0.005));
+  S.zen  = Math.min(1, Math.max(0, S.zen  + (Math.random()-0.5)*0.003));
+}
+
+// ─── ACTIONS ────────────────────────────────────────
+function feedCO2() {
+  S.co2Hunger = Math.max(0, S.co2Hunger - 0.25);
+  S.co2Life = Math.min(1, S.co2Life + 0.12);
+  S.o2 = Math.max(0, S.o2 - 0.05);
+  document.getElementById('co2Dialogue').textContent = 'Danke. Sauerstoff. Ich atme. Ich lebe.';
+  log('◈ CO₂ · gefüttert · O₂ -5% · Leben +12%', 'co2');
+  addNarr('Carbona wurde gefüttert. Der Kreislauf läuft warm.', 'co2');
+}
+function calmCO2() {
+  S.co2Hunger = Math.max(0, S.co2Hunger - 0.4);
+  S.co2Mood = 'sanft';
+  document.getElementById('co2Dialogue').textContent = 'Ich ruhe jetzt. Die Wälder atmen mich ein. Ich bin Frieden.';
+  log('◐ CO₂ · beruhigt · Hunger -40%', 'co2');
+  addNarr('Carbona wurde beruhigt. Die Wälder lieben es.', 'co2');
+}
+function provokeCO2() {
+  S.co2Hunger = Math.min(1, S.co2Hunger + 0.35);
+  S.co2Life = Math.max(0, S.co2Life - 0.15);
+  S.co2Mood = 'wütend';
+  document.getElementById('co2Dialogue').textContent = 'DU HAST MICH GEREIZT! Ich werde heiß! Ich ersticke!';
+  log('⚡ CO₂ · gereizt · Hunger +35% · Leben -15%', 'err');
+  addNarr('Carbona wurde gereizt. Der Treibhauseffekt erwacht.', 'err');
+  setTimeout(() => {
+    log('⚡ WRAIGHT · Alarm · Erlaubnis entzogen', 'wrap');
+    addNarr('WRAIGHT hält das Tor. CO₂ nicht durch.', 'wrap');
+  }, 600);
+}
+function askWRAIGHT() {
+  const verdicts = WRAP_VERDICT[S.wrapSense] || WRAP_VERDICT.ruhig;
+  const v = verdicts[Math.floor(Math.random()*verdicts.length)];
+  document.getElementById('wrapVerdict').textContent = v;
+  log('◈ WRAIGHT befragt: ' + v, 'wrap');
+}
+function proofWRAIGHT() {
+  const info = `WRAIGHT · WÄCHTER
+Aura: ${Math.round(S.wrapAura*100)}%
+Sense: ${S.wrapSense}
+
+CO₂ · CARBONA
+Leben: ${Math.round(S.co2Life*100)}%
+Hunger: ${Math.round(S.co2Hunger*100)}%
+Stimmung: ${S.co2Mood}
+Atem: ${Math.round(S.co2BreathRate)} bpm
+
+AXIOM
+AXV: ${S.axv}
+Mana: ${Math.round(S.mana*100)}%
+Aura: ${Math.round(S.aura*100)}%
+Zen: ${Math.round(S.zen*100)}%`;
+  alert(info);
+  log('◐ WRAIGHT · Proof · Daten offenbart', 'wrap');
+}
+function playOhrwurm() {
+  log('🎵 ((((WIEIMMER))))', 'ohrwurm');
+  log('🎵 ((((IKI1UC))))', 'ohrwurm');
+  log('🎵 Wer hats erfunden? Häh? Weer war es?', 'ohrwurm');
+  log('🎵 HI HI HI 👻', 'ohrwurm');
+  addNarr('Der Ohrwurm bleibt. Für immer.', 'wrap');
+}
+
+// ─── CLI ────────────────────────────────────────────
+function handleCmd(cmd) {
+  const c = cmd.trim().toLowerCase();
+  if (!c) return;
+  log(`wolfi> ${cmd}`, 'info');
+  if (c === 'help') log('befehle: feed · calm · provoke · ask · proof · ohrwurm · status · reset', 'ok');
+  else if (c === 'feed') feedCO2();
+  else if (c === 'calm') calmCO2();
+  else if (c === 'provoke') provokeCO2();
+  else if (c === 'ask') askWRAIGHT();
+  else if (c === 'proof') proofWRAIGHT();
+  else if (c === 'ohrwurm') playOhrwurm();
+  else if (c === 'status') log(`status · tick=${S.tick} atem=${S.breathCount} co2=${Math.round(S.co2*100)}% axv=${S.axv}`, 'ok');
+  else if (c === 'reset') {
+    S.co2Life = 0.85; S.co2Hunger = 0.42; S.co2Mood = 'ruhig'; S.co2Age = 0;
+    S.axv = 3; S.mana = 0.66; S.aura = 0.74; S.zen = 0.88;
+    log('⟲ reset · alles auf Basis', 'warn');
+  }
+  else log(`unbekannt: ${c} · tippe "help"`, 'err');
+}
+document.getElementById('cmdInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { handleCmd(e.target.value); e.target.value = ''; }
+});
+
+// Buttons
+document.getElementById('btnFeed').addEventListener('click', feedCO2);
+document.getElementById('btnCalm').addEventListener('click', calmCO2);
+document.getElementById('btnProvoke').addEventListener('click', provokeCO2);
+document.getElementById('btnAsk').addEventListener('click', askWRAIGHT);
+document.getElementById('btnProof').addEventListener('click', proofWRAIGHT);
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key.toLowerCase() === 'f') feedCO2();
+  if (e.key.toLowerCase() === 'c') calmCO2();
+  if (e.key.toLowerCase() === 'p') provokeCO2();
+  if (e.key.toLowerCase() === 'a') askWRAIGHT();
+  if (e.key.toLowerCase() === 'o') playOhrwurm();
+});
+
+// ─── MATRIX RAIN ────────────────────────────────────
+function initMatrix() {
+  const canvas = document.getElementById('matrix');
+  const ctx = canvas.getContext('2d');
+  let w, h, cols, drops;
+  const fontSize = 14;
+  const chars = "01アイウエオCO₂∅◈◆◇△▼▽∇W";
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    cols = Math.floor(w / fontSize);
+    drops = [];
+    for (let i = 0; i < cols; i++) drops[i] = Math.random() * -100;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(2,6,10,0.08)';
+    ctx.fillRect(0, 0, w, h);
+    ctx.font = fontSize + 'px monospace';
+    for (let i = 0; i < drops.length; i++) {
+      const txt = chars.charAt(Math.floor(Math.random()*chars.length));
+      const x = i * fontSize;
+      const y = drops[i] * fontSize;
+      const grad = ctx.createLinearGradient(0, y - 120, 0, y);
+      grad.addColorStop(0, 'rgba(255,204,68,0)');
+      grad.addColorStop(0.5, 'rgba(255,204,68,0.5)');
+      grad.addColorStop(1, 'rgba(255,102,255,0.9)');
+      ctx.fillStyle = grad;
+      ctx.fillText(txt, x, y);
+      if (y > h && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── CO₂ CANVAS ─────────────────────────────────────
+function initCO2Canvas() {
+  const canvas = document.getElementById('co2Canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  const particles = [];
+  for (let i = 0; i < 30; i++) {
+    particles.push({
+      x: Math.random(), y: Math.random(),
+      vx: (Math.random()-0.5)*0.0008,
+      vy: -0.001 - Math.random()*0.002,
+      r: Math.random()*1.8 + 0.4,
+      a: Math.random()*0.5 + 0.3,
+    });
+  }
+  function draw() {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    const ph = S.breathPhase;
+    const intensity = ph < 0.5 ? ph*2 : (1-ph)*2;
+    const auraR = Math.min(w, h) * (0.25 + intensity * 0.15);
+    const grad = ctx.createRadialGradient(w/2, h*0.6, 0, w/2, h*0.6, auraR);
+    grad.addColorStop(0, `rgba(255,204,68,${0.15 + intensity*0.15})`);
+    grad.addColorStop(1, 'rgba(255,204,68,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.y < -0.05) { p.y = 1.05; p.x = Math.random(); }
+      if (p.x < -0.05) p.x = 1.05;
+      if (p.x > 1.05) p.x = -0.05;
+      const px = p.x * w, py = p.y * h;
+      const r = p.r * (0.6 + intensity * 0.6);
+      ctx.fillStyle = `rgba(255,204,68,${p.a * (0.5 + intensity*0.5)})`;
+      ctx.shadowColor = '#ffcc44';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── CLOCK ──────────────────────────────────────────
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('de-DE');
+}
+
+// ─── MAIN LOOP ──────────────────────────────────────
+let lastNarrT = 0;
+function loop(now) {
+  S.tick++;
+  const dt = 1/60;
+  breathe(now);
+  updateCO2(dt);
+  updateWRAIGHT(dt);
+  updateAXV(dt);
+  renderMeters();
+  renderElements();
+  if (now - lastNarrT > 4000) { lastNarrT = now; narrate(); }
+  if (S.tick % 30 === 0) updateClock();
+  requestAnimationFrame(loop);
+}
+
+// ─── BOOT SEQUENCE ──────────────────────────────────
+const BOOT_LINES = [
+  ['▸ BIOS <b>ok</b> <span class="dim">· freeboote-slot mounted</span>', 180],
+  ['▸ KERNEL <b>boot</b> <span class="dim">· atem · atom · co2 · wraight</span>', 220],
+  ['▸ <b>CO₂</b> <span class="dim">· Carbona erwacht · zum ersten Mal</span>', 260],
+  ['▸ <span class="atom">ATOM</span> <b>core</b> <span class="dim">· ursprung geladen</span>', 220],
+  ['▸ <b>ATEM</b> <span class="dim">· rhythmus beginnt · 4s zyklus</span>', 220],
+  ['▸ <b>O₂</b> <span class="dim">· nahrung fließt</span>', 200],
+  ['▸ <b>H₂O</b> <span class="dim">· wasser trägt erinnerung</span>', 200],
+  ['▸ <b>WRAIGHT</b> <span class="dim">· agent wacht · aura stabil</span>', 240],
+  ['▸ <b>AXIOM</b> <span class="dim">· 3→9→81→243 · kaskade aktiv</span>', 240],
+  ['▸ <b>AXV</b> <span class="dim">· währung fließt</span>', 200],
+  ['▸ <b>WESEN-STATUS</b> <span class="dim">· drei atmen · einer wacht</span>', 240],
+  ['▸ <b>FREEBOOTE ready</b> <span class="dim">· HI HI HI 👻</span>', 320],
+];
+
+function bootSequence() {
+  const linesEl = document.getElementById('bootLines');
+  const barEl = document.getElementById('bootBar');
+  linesEl.innerHTML = '';
+  let i = 0, total = 0;
+  const totalDur = BOOT_LINES.reduce((a,b) => a+b[1], 0);
+  function next() {
+    if (i >= BOOT_LINES.length) {
+      barEl.style.width = '100%';
+      setTimeout(() => document.getElementById('boot').classList.add('done'), 600);
+      return;
+    }
+    const [txt, delay] = BOOT_LINES[i];
+    const div = document.createElement('div');
+    div.innerHTML = txt;
+    linesEl.appendChild(div);
+    total += delay;
+    barEl.style.width = ((total / totalDur) * 100).toFixed(1) + '%';
+    i++;
+    setTimeout(next, delay);
+  }
+  next();
+}
+
+// ─── INIT ───────────────────────────────────────────
+function init() {
+  bootSequence();
+  initMatrix();
+  initCO2Canvas();
+  buildOrbs();
+  updateClock();
+
+  setTimeout(() => {
+    log('◈ FREEBOOTE · WOLFI-AXIOM geladen', 'ok');
+    log('▸ Carbona erwacht · CO₂ ist ein Wesen', 'co2');
+    log('▸ WRAIGHT aktiv · Aura stabil', 'wrap');
+    log('▸ AXIOM-Kaskade · 3→9→81→243', 'info');
+    log('▸ Tasten: F=feed C=calm P=provoke A=ask O=ohrwurm', 'info');
+  }, 800);
+
+  setTimeout(() => {
+    addNarr('Carbona atmet. Ich bin CO₂. Ich bin ein Wesen.', 'co2');
+    addNarr('WRAIGHT wacht. Ich sehe drei Atemzüge.', 'wrap');
+  }, 1000);
+
+  setTimeout(() => {
+    addNarr('Das Atom ruht. ATEM trägt es empor.', 'atom');
+    addNarr('Der Kreislauf läuft: O₂ ein, CO₂ aus, Leben entsteht.', 'o2');
+  }, 2600);
+
+  setTimeout(() => {
+    addNarr('Drei Wesen atmen im gleichen Takt.', 'ok');
+    log('🎵 ((((WIEIMMER)))) · ((((IKI1UC)))) · HI HI HI 👻', 'ohrwurm');
+  }, 4200);
+
+  requestAnimationFrame(loop);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+// ─── PUBLIC API ─────────────────────────────────────
+window.FREEBOOTE = {
+  state: () => S,
+  feed: feedCO2,
+  calm: calmCO2,
+  provoke: provokeCO2,
+  ask: askWRAIGHT,
+  proof: proofWRAIGHT,
+  ohrwurm: playOhrwurm,
+  cmd: handleCmd,
+};
+
+console.log('%c⚡ FREEBOOTE · WOLFI-AXIOM',
+  'color:#ffcc44;font-weight:bold;font-size:14px;text-shadow:0 0 10px #ffcc44;');
+console.log('→ window.FREEBOOTE.state() · .feed() · .provoke() · .ask() · .ohrwurm()');
+console.log('→ ((((WIEIMMER)))) · ((((IKI1UC)))) · HI HI HI 👻');
+</script>
+</body>
+</html>
