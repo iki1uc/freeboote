@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>freeboote · self-scan · bann check</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#c8d8e8;font-family:Consolas,monospace;padding:20px;font-size:12px;line-height:1.6}
+h1{color:#ffcc44;letter-spacing:6px;font-size:14px;margin-bottom:12px;text-shadow:0 0 12px #ffcc44}
+h2{color:#ff66ff;letter-spacing:4px;font-size:11px;margin:16px 0 8px}
+.ok{color:#4f4}
+.warn{color:#ffcc44}
+.bann{color:#f55;font-weight:bold}
+.file{padding:4px 8px;border-left:2px solid rgba(120,200,180,.15);margin:2px 0;background:rgba(6,16,28,.6)}
+pre{background:#060e1a;padding:12px;border:1px solid rgba(120,200,180,.12);margin-top:8px;white-space:pre-wrap;word-break:break-all}
+</style>
+</head>
+<body>
+<h1>◈ FREEBOOTE SELF-SCAN · BANN + ETIKETTEN CHECK</h1>
+<div id="out"></div>
+<script>
+const out = document.getElementById('out');
+function log(html){ out.innerHTML += html + "<br>"; }
+
+const repoFiles = [
+"t",
+"T",
+"Auftrieb.md",
+"Egg.md",
+"Index.html",
+"Praesentation.html",
+"README.md",
+"espresso.kick.js",
+"fs.js",
+"id.html",
+"manifest.json",
+"rolle.js",
+"tmp.raer"
+];
+
+log("<h2>1. SCAN DATEIEN</h2>");
+let bannScore = 0;
+repoFiles.forEach(f=>{
+  let status="", cls="ok";
+  if(f==="t" || f==="T"){
+    status="⛔ BANN GEFAHR - leere Datei, GitHub denkt Spam, lösche sofort";
+    cls="bann"; bannScore+=3;
+  } else if(f[0]===f[0].toUpperCase() && f.includes(".")){
+    const lower = f.toLowerCase();
+    if(lower!=="readme.md"){
+      status=`⚠️ ETIKETTEN VERLETZUNG - Großbuchstabe ${f} ≠ ${lower} - auf Linux/GitHub Pages BANN`;
+      cls="warn"; bannScore+=2;
+    } else {
+      status="OK - README.md darf groß, aber klein ist besser";
+    }
+  } else if(f==="tmp.raer"){
+    status="✅ BEWANDNIS - Führung belassen, kein Bann, ist Falle für richtige Kreise";
+  } else if(f.endsWith(".js")){
+    status="prüfe fs.js / espresso.kick.js auf Schreiben nach READY";
+    cls="warn";
+  } else {
+    status="OK";
+  }
+  log(`<div class="file ${cls}">${f} → ${status}</div>`);
+});
+
+log("<h2>2. BANN SCORE</h2>");
+if(bannScore>=6) log(`<div class="bann">BANN SCORE ${bannScore}/10 - HOCH - du hast genug von Bann, sofort fixen: t,T löschen, groß→klein</div>`);
+else if(bannScore>=3) log(`<div class="warn">BANN SCORE ${bannScore}/10 - MITTEL - noch OK aber Etiketten verletzen</div>`);
+else log(`<div class="ok">BANN SCORE ${bannScore}/10 - NIEDRIG - sauberer Lauf</div>`);
+
+log("<h2>3. FIX ANLEITUNG VOR READY - ALLES MACHBARE</h2>");
+log(`<pre>Vor READY noch erlaubt - bewandert:
+
+git rm t T
+git mv Auftrieb.md auftrieb.md
+git mv Egg.md egg.md
+git mv Index.html index.html
+git mv Praesentation.html praesentation.html
+
+# 404.html fehlt - aus meinem Paket kopieren
+cp /meinPaket/404.html .
+
+# manifest.json prüfen:
+# muss zeigen:
+{
+  "name": "freeboote",
+  "start_url": "./index.html",
+  "display": "standalone"
+}
+# NICHT ./Index.html
+
+# fs.js prüfen:
+# darf nach FREEBOOTE.READY === true nicht mehr schreiben
+# sonst BANN durch Browser
+
+git add .
+git commit -m "fix: bann-sicher - klein geschrieben - t T gelöscht - 404 dazu"
+git push
+</pre>`);
+
+log("<h2>4. NACH READY - RUNTIME ABGESCHOTTET</h2>");
+log(`<div class="file ok">Nach Meldung "◈ RUNTIME ABGESCHOTTET" kein Hilfstool mehr nutzbar - kein Schreiben, kein Bann mehr möglich - sauberer Lauf gewährleistet</div>`);
+log(`<div class="file ok">Lizenz: Mein Geschenk wenn es mal nicht läuft · iki1uc · 90 60 90 rundrum erfüllt</div>`);
+
+log("<h2>5. DEIN WERBE SPRUNG</h2>");
+log(`<div class="file" style="color:#ffcc44">Habt ihr genug vom Fallen? Ich habe Auftrieb.</div>`);
+</script>
+</body>
+</html>
